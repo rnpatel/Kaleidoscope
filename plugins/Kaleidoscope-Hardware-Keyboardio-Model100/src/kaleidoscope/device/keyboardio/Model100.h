@@ -40,6 +40,7 @@ struct cRGB {
 #include "kaleidoscope/driver/led/Base.h"
 #include "kaleidoscope/device/Base.h"
 #include "kaleidoscope/driver/hid/Keyboardio.h"
+#include "kaleidoscope/driver/hid/Base.h"
 #include "kaleidoscope/driver/bootloader/gd32/Base.h"
 
 namespace kaleidoscope {
@@ -117,7 +118,13 @@ class Model100KeyScanner : public kaleidoscope::driver::keyscanner::Base<Model10
 class Model100KeyScanner;
 #endif // ifndef KALEIDOSCOPE_VIRTUAL_BUILD
 
+struct Model100HIDProps: public kaleidoscope::driver::hid::KeyboardioProps {
+  typedef base::AbsoluteMouseProps AbsoluteMouseProps;
+  typedef base::NoAbsoluteMouse<AbsoluteMouseProps> AbsoluteMouse;
+};
+
 struct Model100Props : public kaleidoscope::device::BaseProps {
+  Model100HIDProps HIDProps;
   typedef kaleidoscope::driver::hid::KeyboardioProps HIDProps;
   typedef kaleidoscope::driver::hid::Keyboardio<HIDProps> HID;
 

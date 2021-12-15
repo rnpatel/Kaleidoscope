@@ -120,11 +120,11 @@ class Model100KeyScanner;
 
 struct Model100HIDProps: public kaleidoscope::driver::hid::KeyboardioProps {
   typedef kaleidoscope::driver::hid::base::AbsoluteMouseProps AbsoluteMouseProps;
-  typedef kaleidoscope::driver::hid::base::NoAbsoluteMouse AbsoluteMouse;
+  typedef kaleidoscope::driver::hid::base::AbsoluteMouse<AbsoluteMouseProps> AbsoluteMouse;
 };
 
 struct Model100Props : public kaleidoscope::device::BaseProps {
-  Model100HIDProps HIDProps;
+  typedef Model100HIDProps HIDProps;
   typedef kaleidoscope::driver::hid::Keyboardio<HIDProps> HID;
 
   typedef Model100LEDDriverProps  LEDDriverProps;

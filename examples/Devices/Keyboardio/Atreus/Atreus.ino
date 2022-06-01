@@ -18,126 +18,197 @@
  */
 
 #ifndef BUILD_INFORMATION
-#define BUILD_INFORMATION "locally built on " __DATE__ " at " __TIME__
+#define BUILD_INFORMATION "locally built"
 #endif
 
 #include "Kaleidoscope.h"
-#include "Kaleidoscope-EEPROM-Settings.h"
-#include "Kaleidoscope-EEPROM-Keymap.h"
-#include "Kaleidoscope-FocusSerial.h"
-#include "Kaleidoscope-Macros.h"
-#include "Kaleidoscope-MouseKeys.h"
-#include "Kaleidoscope-OneShot.h"
 #include "Kaleidoscope-Qukeys.h"
-#include "Kaleidoscope-SpaceCadet.h"
-
+#include "Kaleidoscope-OneShot.h"
+#include "Kaleidoscope-TapDance.h"
+#include "Kaleidoscope-Macros.h"
 
 #define MO(n) ShiftToLayer(n)
 #define TG(n) LockLayer(n)
+#define ML(n) MoveToLayer(n)
+
+#define CH_HYPER LSHIFT(LALT(LGUI(Key_LeftControl)))
+#define CH_MEH   LSHIFT(LALT(Key_LeftGui))
 
 enum {
   MACRO_QWERTY,
   MACRO_VERSION_INFO
 };
 
-#define Key_Exclamation LSHIFT(Key_1)
-#define Key_At          LSHIFT(Key_2)
-#define Key_Hash        LSHIFT(Key_3)
-#define Key_Dollar      LSHIFT(Key_4)
-#define Key_Percent     LSHIFT(Key_5)
-#define Key_Caret       LSHIFT(Key_6)
-#define Key_And         LSHIFT(Key_7)
-#define Key_Star        LSHIFT(Key_8)
-#define Key_Plus        LSHIFT(Key_Equals)
+#define Key_Bang    LSHIFT(Key_1)
+#define Key_At      LSHIFT(Key_2)
+#define Key_Hash    LSHIFT(Key_3)
+#define Key_Dollar  LSHIFT(Key_4)
+#define Key_Percent LSHIFT(Key_5)
+#define Key_Caret   LSHIFT(Key_6)
+#define Key_And     LSHIFT(Key_7)
+#define Key_Star    LSHIFT(Key_8)
+#define Key_Plus    LSHIFT(Key_Equals)
 
 enum {
   QWERTY,
   FUN,
-  UPPER
+  NUM
 };
 
-// clang-format off
+enum {
+    TDLB,
+    TDRB,
+    TDME
+};
+
+
+/* *INDENT-OFF* */
 KEYMAPS(
-  [QWERTY] = KEYMAP_STACKED
-  (
-       Key_Q   ,Key_W   ,Key_E       ,Key_R         ,Key_T
-      ,Key_A   ,Key_S   ,Key_D       ,Key_F         ,Key_G
-      ,Key_Z   ,Key_X   ,Key_C       ,Key_V         ,Key_B, Key_Backtick
-      ,Key_Esc ,Key_Tab ,Key_LeftGui ,Key_LeftShift ,Key_Backspace ,Key_LeftControl
+    /* QWERTY
+     * ┌───────┬───────┬───────┬───────┬───────┐                        ┌───────┬───────┬───────┬───────┬───────┐
+     * │   Q   │   W   │   E   │   R   │   T   │                        │   Y   │   U   │   I   │   O   │   P   │
+     * ├───────┼───────┼───────┼───────┼───────┤                        ├───────┼───────┼───────┼───────┼───────┤
+     * │  ⇧•A  │  ^•S  │  ⌘•D  │  ⌥•F  │   G   │                        │   H   │  ⌥•J  │  ⌘•K  │  ^•L  │  ⇧•;  │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┐        ┌───────┼───────┼───────┼───────┼───────┼───────┤
+     * │   Z   │   X   │   C   │   V   │   B   │  ⇧•⇥  │        │  RET  │   N   │   M   │   ,   │   .   │   /   │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┤        ├───────┼───────┼───────┼───────┼───────┼───────┤
+     * │ FUN•` │  ESC  │  Ins  │ BKSPC │ (→[→{ │  MEH  │        │ HYPER │ )→]→} │  SPC  │   \   │ - → = │ NUM•' │
+     * └───────┴───────┴───────┴───────┴───────┴───────┘        └───────┴───────┴───────┴───────┴───────┴───────┘
+     */
+    [QWERTY] = KEYMAP_STACKED
+    (
+        //
+        // left hand
+        //
+        Key_Q,             Key_W,       Key_E,       Key_R,          Key_T,     /*-----*/
+        SFT_T(A),          CTL_T(S),    GUI_T(D),    ALT_T(F),       Key_G,     /*-----*/
+        Key_Z,             Key_X,       Key_C,       Key_V,          Key_B,     SFT_T(Tab),
+        LT(FUN,Backtick),  Key_Escape,  Key_Insert,  Key_Backspace,  TD(TDLB),  CH_MEH,
 
-                     ,Key_Y     ,Key_U      ,Key_I     ,Key_O      ,Key_P
-                     ,Key_H     ,Key_J      ,Key_K     ,Key_L      ,Key_Semicolon
-       ,Key_Backslash,Key_N     ,Key_M      ,Key_Comma ,Key_Period ,Key_Slash
-       ,Key_LeftAlt  ,Key_Space ,MO(FUN)    ,Key_Minus ,Key_Quote  ,Key_Enter
-  ),
+        //
+        // right hand
+        //
+        /*-----*/   Key_Y,     Key_U,      Key_I,          Key_O,       Key_P,
+        /*-----*/   Key_H,     ALT_T(J),   GUI_T(K),       CTL_T(L),    SFT_T(Semicolon),
+        Key_Enter,  Key_N,     Key_M,      Key_Comma,      Key_Period,  Key_Slash,
+        CH_HYPER,   TD(TDRB),  Key_Space,  Key_Backslash,  TD(TDME),    LT(NUM,Quote)
+    ),
 
-  [FUN] = KEYMAP_STACKED
-  (
-       Key_Exclamation ,Key_At           ,Key_UpArrow   ,Key_Dollar           ,Key_Percent
-      ,Key_LeftParen   ,Key_LeftArrow    ,Key_DownArrow ,Key_RightArrow       ,Key_RightParen
-      ,Key_LeftBracket ,Key_RightBracket ,Key_Hash      ,Key_LeftCurlyBracket ,Key_RightCurlyBracket ,Key_Caret
-      ,TG(UPPER)       ,Key_Insert       ,Key_LeftGui   ,Key_LeftShift        ,Key_Delete         ,Key_LeftControl
+    /* FUN
+     * ┌───────┬───────┬───────┬───────┬───────┐                        ┌───────┬───────┬───────┬───────┬───────┐
+     * │  F1   │  F2   │  F3   │  F4   │  F5   │                        │  F6   │  F7   │  F8   │  F9   │  F10  │
+     * ├───────┼───────┼───────┼───────┼───────┤                        ├───────┼───────┼───────┼───────┼───────┤
+     * │  F11  │  F12  │       │       │       │                        │ VOLX  │       │   ↑   │       │   ⌘   │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┐        ┌───────┼───────┼───────┼───────┼───────┼───────┤
+     * │       │       │       │       │       │   ⇧   │        │       │ VOL↑  │   ←   │   ↓   │   →   │   ⌥   │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┤        ├───────┼───────┼───────┼───────┼───────┼───────┤
+     * │       │       │       │       │       │       │        │       │ VOL↓  │  <<   │  ||   │  >>   │       │
+     * └───────┴───────┴───────┴───────┴───────┴───────┘        └───────┴───────┴───────┴───────┴───────┴───────┘
+     */
+    [FUN] = KEYMAP_STACKED
+    (
+        //
+        // left hand
+        //
+        Key_F1,   Key_F2,   Key_F3,  Key_F4,         Key_F5,  /*-----*/
+        Key_F11,  Key_F12,  XXX,     XXX,            XXX,     /*-----*/
+        XXX,      XXX,      XXX,     XXX,            XXX,     Key_LeftShift,
+        ___,      ___,      XXX,     Key_Backspace,  XXX,     XXX,
 
-                   ,Key_PageUp   ,Key_7 ,Key_8      ,Key_9 ,Key_Backspace
-                   ,Key_PageDown ,Key_4 ,Key_5      ,Key_6 ,___
-      ,Key_And     ,Key_Star     ,Key_1 ,Key_2      ,Key_3 ,Key_Plus
-      ,Key_LeftAlt ,Key_Space    ,___   ,Key_Period ,Key_0 ,Key_Equals
-   ),
+        //
+        // right hand
+        //
+        /*-----*/  Key_F6,                    Key_F7,                      Key_F8,                   Key_F9,                  Key_F10,
+        /*-----*/  Consumer_Mute,             XXX,                         Key_UpArrow,              XXX,                     Key_LeftGui,
+        ___,       Consumer_VolumeIncrement,  Key_LeftArrow,               Key_DownArrow,            Key_RightArrow,          Key_LeftAlt,
+        XXX,       Consumer_VolumeDecrement,  Consumer_ScanPreviousTrack,  Consumer_PlaySlashPause,  Consumer_ScanNextTrack,  ___
+    ),
 
-  [UPPER] = KEYMAP_STACKED
-  (
-       Key_Insert            ,Key_Home                 ,Key_UpArrow   ,Key_End        ,Key_PageUp
-      ,Key_Delete            ,Key_LeftArrow            ,Key_DownArrow ,Key_RightArrow ,Key_PageDown
-      ,M(MACRO_VERSION_INFO) ,Consumer_VolumeIncrement ,XXX           ,XXX            ,___ ,___
-      ,MoveToLayer(QWERTY)   ,Consumer_VolumeDecrement ,___           ,___            ,___ ,___
+    /* NUM
+     * ┌───────┬───────┬───────┬───────┬───────┐                        ┌───────┬───────┬───────┬───────┬───────┐
+     * │   1   │   2   │   3   │   4   │   5   │                        │   6   │   7   │   8   │   9   │   0   │
+     * ├───────┼───────┼───────┼───────┼───────┤                        ├───────┼───────┼───────┼───────┼───────┤
+     * │   !   │   @   │   #   │   $   │   %   │                        │   ^   │   &   │   *   │   (   │   )   │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┐        ┌───────┼───────┼───────┼───────┼───────┼───────┤
+     * │   =   │       │       │       │       │  PgUP │        │ HOME  │ VOL↑  │   ←   │   ↓   │   →   │   ⌥   │
+     * ├───────┼───────┼───────┼───────┼───────┼───────┤        ├───────┼───────┼───────┼───────┼───────┼───────┤
+     * │   +   │       │       │       │       │  PgDN │        │  END  │ VOL↓  │  <<   │  ||   │  >>   │       │
+     * └───────┴───────┴───────┴───────┴───────┴───────┘        └───────┴───────┴───────┴───────┴───────┴───────┘
+     */
+    [NUM] = KEYMAP_STACKED
+    (
+        //
+        // left hand
+        //
+        Key_1,       Key_2,   Key_3,     Key_4,       Key_5,        /*-----*/
+        Key_Bang,    Key_At,  Key_Hash,  Key_Dollar,  Key_Percent,  /*-----*/
+        Key_Equals,  XXX,     XXX,       XXX,         XXX,          Key_PageUp,
+        Key_Plus,    ___,     XXX,       XXX,         XXX,          Key_PageDown,
 
-                ,Key_UpArrow   ,Key_F7              ,Key_F8          ,Key_F9         ,Key_F10
-                ,Key_DownArrow ,Key_F4              ,Key_F5          ,Key_F6         ,Key_F11
-      ,___      ,XXX           ,Key_F1              ,Key_F2          ,Key_F3         ,Key_F12
-      ,___      ,___           ,MoveToLayer(QWERTY) ,Key_PrintScreen ,Key_ScrollLock ,Consumer_PlaySlashPause
-   )
+        //
+        // right hand
+        //
+        /*-----*/  Key_6,      Key_7,    Key_8,     Key_9,          Key_0,
+        /*-----*/  Key_Caret,  Key_And,  Key_Star,  Key_LeftParen,  Key_RightParen,
+        Key_Home,  XXX,        XXX,      XXX,       XXX,            XXX,
+        Key_End,   XXX,        XXX,      XXX,       XXX,            ___
+    )
 )
-// clang-format on
+/* *INDENT-ON* */
 
 KALEIDOSCOPE_INIT_PLUGINS(
-  EEPROMSettings,
-  EEPROMKeymap,
-  Focus,
-  FocusEEPROMCommand,
-  FocusSettingsCommand,
   Qukeys,
-  SpaceCadet,
   OneShot,
-  Macros,
-  MouseKeys);
+  TapDance,
+  Macros
+);
 
-const macro_t *macroAction(uint8_t macro_id, KeyEvent &event) {
-  if (keyToggledOn(event.state)) {
-    switch (macro_id) {
-    case MACRO_QWERTY:
-      // This macro is currently unused, but is kept around for compatibility
-      // reasons. We used to use it in place of `MoveToLayer(QWERTY)`, but no
-      // longer do. We keep it so that if someone still has the old layout with
-      // the macro in EEPROM, it will keep working after a firmware update.
-      Layer.move(QWERTY);
-      break;
-    case MACRO_VERSION_INFO:
+const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
+  switch (macroIndex) {
+  case MACRO_QWERTY:
+    // This macro is currently unused, but is kept around for compatibility
+    // reasons. We used to use it in place of `MoveToLayer(QWERTY)`, but no
+    // longer do. We keep it so that if someone still has the old layout with
+    // the macro in EEPROM, it will keep working after a firmware update.
+    Layer.move(QWERTY);
+    break;
+  case MACRO_VERSION_INFO:
+    if (keyToggledOn(keyState)) {
       Macros.type(PSTR("Keyboardio Atreus - Kaleidoscope "));
       Macros.type(PSTR(BUILD_INFORMATION));
-      break;
-    default:
-      break;
     }
+    break;
+  default:
+    break;
   }
+
   return MACRO_NONE;
 }
 
 void setup() {
   Kaleidoscope.setup();
-  SpaceCadet.disable();
-  EEPROMKeymap.setup(10);
 }
 
 void loop() {
   Kaleidoscope.loop();
+}
+
+void tapDanceAction(uint8_t tap_dance_index, KeyAddr key_addr, uint8_t tap_count,
+                    kaleidoscope::plugin::TapDance::ActionType tap_dance_action)
+{
+    switch (tap_dance_index)
+    {
+        case TDLB:
+            return tapDanceActionKeys(tap_count, tap_dance_action,
+                                      Key_LeftParen, Key_LeftBracket, Key_LeftCurlyBracket);
+            break;
+        case TDRB:
+            return tapDanceActionKeys(tap_count, tap_dance_action,
+                                      Key_RightParen, Key_RightBracket, Key_RightCurlyBracket);
+            break;
+        case TDME:
+            return tapDanceActionKeys(tap_count, tap_dance_action,
+                                      Key_Minus, Key_Equals);
+            break;
+    }
 }

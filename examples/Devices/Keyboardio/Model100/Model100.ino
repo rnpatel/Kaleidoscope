@@ -568,7 +568,7 @@ KALEIDOSCOPE_INIT_PLUGINS(
     LEDControl,
 
     // We start with the LED effect that turns off all the LEDs.
-    // LEDOff,
+    LEDOff,
 
     // The rainbow effect changes the color of all of the keyboard's keys at the same time
     // running through all the colors of the rainbow.
@@ -742,7 +742,8 @@ void setup() {
     DefaultLEDModeConfig.activateLEDModeIfUnconfigured(&LEDOff);
 
     ActiveModColorEffect.setHighlightColor(CRGB(0xd0, 0xd0, 0xd0));
-    ActiveModColorEffect.setStickyColor(CRGB(0xd0, 0xd0, 0x00));
+    ActiveModColorEffect.setOneShotColor(CRGB(0xd0, 0x69, 0x34));
+    ActiveModColorEffect.setStickyColor(CRGB(0xab, 0x34, 0xd0));
 
 }
 

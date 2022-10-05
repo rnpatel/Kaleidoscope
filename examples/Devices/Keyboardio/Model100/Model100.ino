@@ -10,27 +10,8 @@
 // The Kaleidoscope core
 #include "Kaleidoscope.h"
 
-// Support for storing the keymap in EEPROM
-#include "Kaleidoscope-EEPROM-Settings.h"
-#include "Kaleidoscope-EEPROM-Keymap.h"
-
-// Support for communicating with the host via a simple Serial protocol
-#include "Kaleidoscope-FocusSerial.h"
-
-// Support for querying the firmware version via Focus
-#include "Kaleidoscope-FirmwareVersion.h"
-
-// Support for keys that move the mouse
-#include "Kaleidoscope-MouseKeys.h"
-
-// Support for macros
-#include "Kaleidoscope-Macros.h"
-
 // Support for controlling the keyboard's LEDs
 #include "Kaleidoscope-LEDControl.h"
-
-// Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
-#include "Kaleidoscope-NumPad.h"
 
 // Support for the "Boot greeting" effect, which pulses the 'LED' button for 10s
 // when the keyboard is connected to a computer (or that computer is powered on)
@@ -39,32 +20,8 @@
 // Support for LED modes that set all LEDs to a single color
 #include "Kaleidoscope-LEDEffect-SolidColor.h"
 
-// Support for an LED mode that makes all the LEDs 'breathe'
-#include "Kaleidoscope-LEDEffect-Breathe.h"
-
-// Support for an LED mode that makes a red pixel chase a blue pixel across the keyboard
-#include "Kaleidoscope-LEDEffect-Chase.h"
-
-// Support for LED modes that pulse the keyboard's LED in a rainbow pattern
-#include "Kaleidoscope-LEDEffect-Rainbow.h"
-
-// Support for an LED mode that lights up the keys as you press them
-#include "Kaleidoscope-LED-Stalker.h"
-
-// Support for an LED mode that prints the keys you press in letters 4px high
-#include "Kaleidoscope-LED-AlphaSquare.h"
-
-// Support for shared palettes for other plugins, like Colormap below
-#include "Kaleidoscope-LED-Palette-Theme.h"
-
-// Support for an LED mode that lets one configure per-layer color maps
-#include "Kaleidoscope-Colormap.h"
-
 // Support for turning the LEDs off after a certain amount of time
 #include "Kaleidoscope-IdleLEDs.h"
-
-// Support for setting and saving the default LED mode
-#include "Kaleidoscope-DefaultLEDModeConfig.h"
 
 // Support for Keyboardio's internal keyboard testing mode
 #include "Kaleidoscope-HardwareTestMode.h"
@@ -85,18 +42,6 @@
 #include "Kaleidoscope-OneShot.h"
 #include "Kaleidoscope-Escape-OneShot.h"
 
-// Support for dynamic, Chrysalis-editable macros
-#include "Kaleidoscope-DynamicMacros.h"
-
-// Support for SpaceCadet keys
-#include "Kaleidoscope-SpaceCadet.h"
-
-// Support for editable layer names
-#include "Kaleidoscope-LayerNames.h"
-
-// Support for the GeminiPR Stenography protocol
-#include "Kaleidoscope-Steno.h"
-
 // Support for key inversion to flip keys
 #include "Kaleidoscope-TopsyTurvy.h"
 
@@ -105,24 +50,6 @@
 
 // Support for highlighting modifier keys when active
 #include "Kaleidoscope-LED-ActiveModColor.h"
-
-/** This 'enum' is a list of all the macros used by the Model 100's firmware
- * The names aren't particularly important. What is important is that each
- * is unique.
- *
- * These are the names of your macros. They'll be used in two places.
- * The first is in your keymap definitions. There, you'll use the syntax
- * `M(MACRO_NAME)` to mark a specific keymap position as triggering `MACRO_NAME`
- *
- * The second usage is in the 'switch' statement in the `macroAction` function.
- * That switch statement actually runs the code associated with a macro when
- * a macro key is pressed.
- */
-
-enum {
-  MACRO_VERSION_INFO,
-  MACRO_ANY,
-};
 
 enum {
     TDLBR,                      // left paren → bracket → brace
@@ -288,7 +215,7 @@ KEYMAPS(
         Key_Escape,      Key_1, Key_2, Key_3, Key_4, Key_5, KC_MEH,
         Key_Backtick,    Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
         Key_LeftControl, Key_A, Key_S, Key_D, Key_F, Key_G,
-        Key_LeftShift,   Key_Z, Key_X, Key_C, Key_V, Key_B, TD(TDLBR),
+        Key_LeftShift,   Key_Z, Key_X, Key_C, Key_V, Key_B, Key_LeftBracket,
 
         CTL_T(Spacebar), OSM(LeftAlt), OSM(LeftGui), OSM(LeftShift),
 
@@ -316,7 +243,7 @@ KEYMAPS(
         KC_HYP,    Key_6, Key_7, Key_8,     Key_9,      Key_0,         Key_Backspace,
         Key_Enter, Key_Y, Key_U, Key_I,     Key_O,      Key_P,         Key_Equals,
                    Key_H, Key_J, Key_K,     Key_L,      Key_Semicolon, Key_Quote,
-        TD(TDRBR), Key_N, Key_M, Key_Comma, Key_Period, Key_Slash,     Key_Minus,
+ Key_RightBracket, Key_N, Key_M, Key_Comma, Key_Period, Key_Slash,     Key_Minus,
 
         OSM(RightAlt), OSM(RightGui), Key_Backslash, Key_Spacebar,
 
@@ -360,60 +287,6 @@ KEYMAPS(
 /* Re-enable astyle's indent enforcement */
 // clang-format on
 
-/** versionInfoMacro handles the 'firmware version info' macro
- *  When a key bound to the macro is pressed, this macro
- *  prints out the firmware build information as virtual keystrokes
- */
-
-static void versionInfoMacro(uint8_t key_state) {
-  if (keyToggledOn(key_state)) {
-    Macros.type(PSTR("Keyboardio Model 100 - Firmware version "));
-    Macros.type(PSTR(KALEIDOSCOPE_FIRMWARE_VERSION));
-    }
-}
-
-/** anyKeyMacro is used to provide the functionality of the 'Any' key.
- *
- * When the 'any key' macro is toggled on, a random alphanumeric key is
- * selected. While the key is held, the function generates a synthetic
- * keypress event repeating that randomly selected key.
- *
- */
-
-static void anyKeyMacro(KeyEvent &event) {
-  if (keyToggledOn(event.state)) {
-    event.key.setKeyCode(Key_A.getKeyCode() + (uint8_t)(millis() % 36));
-    event.key.setFlags(0);
-  }
-}
-
-
-/** macroAction dispatches keymap events that are tied to a macro
-    to that macro. It takes two uint8_t parameters.
-
-    The first is the macro being called (the entry in the 'enum' earlier in this file).
-    The second is the state of the keyswitch. You can use the keyswitch state to figure out
-    if the key has just been toggled on, is currently pressed or if it's just been released.
-
-    The 'switch' statement should have a 'case' for each entry of the macro enum.
-    Each 'case' statement should call out to a function to handle the macro in question.
-
-*/
-
-const macro_t *macroAction(uint8_t macro_id, KeyEvent &event) {
-    switch (macro_id) {
-
-        case MACRO_VERSION_INFO:
-            versionInfoMacro(event.state);
-            break;
-
-        case MACRO_ANY:
-            anyKeyMacro(event);
-            break;
-    }
-    return MACRO_NONE;
-}
-
 void tapDanceAction(uint8_t tap_dance_index, byte row, byte col, uint8_t tap_count,
                     kaleidoscope::plugin::TapDance::ActionType tap_dance_action)
 {
@@ -433,15 +306,6 @@ void tapDanceAction(uint8_t tap_dance_index, byte row, byte col, uint8_t tap_cou
 // These 'solid' color effect definitions define a rainbow of
 // LED color modes calibrated to draw 500mA or less on the
 // Keyboardio Model 100.
-
-
-static kaleidoscope::plugin::LEDSolidColor solidRed(160, 0, 0);
-static kaleidoscope::plugin::LEDSolidColor solidOrange(140, 70, 0);
-static kaleidoscope::plugin::LEDSolidColor solidYellow(130, 100, 0);
-static kaleidoscope::plugin::LEDSolidColor solidGreen(0, 160, 0);
-static kaleidoscope::plugin::LEDSolidColor solidBlue(0, 70, 130);
-static kaleidoscope::plugin::LEDSolidColor solidIndigo(0, 0, 170);
-static kaleidoscope::plugin::LEDSolidColor solidViolet(130, 0, 120);
 
 static kaleidoscope::plugin::LEDSolidColor rnpGreen(0, 100, 0);
 static kaleidoscope::plugin::LEDSolidColor rnpOrange(128, 64, 32);
@@ -496,16 +360,6 @@ static void toggleKeyboardProtocol(uint8_t combo_index) {
     USBQuirks.toggleKeyboardProtocol();
 }
 
-/**
- * Toggles between using the built-in keymap, and the EEPROM-stored one.
- */
-static void toggleKeymapSource(uint8_t combo_index) {
-  if (Layer.getKey == Layer.getKeyFromPROGMEM) {
-    Layer.getKey = EEPROMKeymap.getKey;
-  } else {
-    Layer.getKey = Layer.getKeyFromPROGMEM;
-  }
-}
 
 /**
  *  This enters the hardware test mode
@@ -518,44 +372,18 @@ static void enterHardwareTestMode(uint8_t combo_index) {
 /** Magic combo list, a list of key combo and action pairs the firmware should
  * recognise.
  */
-USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
-                  // Left Fn + Esc + Shift
-                  .keys = {R3C6, R2C6, R3C7}},
-                 {.action = enterHardwareTestMode,
-                  // Left Fn + Prog + LED
-                  .keys = {R3C6, R0C0, R0C6}},
-                 {.action = toggleKeymapSource,
-                  // Left Fn + Prog + Shift
-                  .keys = {R3C6, R0C0, R3C7}});
+USE_MAGIC_COMBOS(
+    {.action = toggleKeyboardProtocol,
+        // Left Fn + Esc + Shift
+        .keys = {R3C6, R2C6, R3C7}},
+    {.action = enterHardwareTestMode,
+     // Left Fn + Prog + LED
+     .keys = {R3C6, R0C0, R0C6}});
 
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are
 // added in the order they're listed here.
 KALEIDOSCOPE_INIT_PLUGINS(
-    // The EEPROMSettings & EEPROMKeymap plugins make it possible to have an
-    // editable keymap in EEPROM.
-    EEPROMSettings,
-    EEPROMKeymap,
-
-    // SpaceCadet can turn your shifts into parens on tap, while keeping them as
-    // Shifts when held. SpaceCadetConfig lets Chrysalis configure some aspects of
-    // the plugin.
-    SpaceCadet,
-    SpaceCadetConfig,
-
-    // Focus allows bi-directional communication with the host, and is the
-    // interface through which the keymap in EEPROM can be edited.
-    Focus,
-
-    // FocusSettingsCommand adds a few Focus commands, intended to aid in
-    // changing some settings of the keyboard, such as the default layer (via the
-    // `settings.defaultLayer` command)
-    FocusSettingsCommand,
-
-    // FocusEEPROMCommand adds a set of Focus commands, which are very helpful in
-    // both debugging, and in backing up one's EEPROM contents.
-    FocusEEPROMCommand,
-
     // The boot greeting effect pulses the LED button for 10 seconds after the
     // keyboard is first connected
     BootGreetingEffect,
@@ -567,68 +395,9 @@ KALEIDOSCOPE_INIT_PLUGINS(
     // LEDControl provides support for other LED modes
     LEDControl,
 
-    // We start with the LED effect that turns off all the LEDs.
-    LEDOff,
-
-    // The rainbow effect changes the color of all of the keyboard's keys at the same time
-    // running through all the colors of the rainbow.
-    // LEDRainbowEffect,
-
-    // The rainbow wave effect lights up your keyboard with all the colors of a rainbow
-    // and slowly moves the rainbow across your keyboard
-    // LEDRainbowWaveEffect,
-
-    // The chase effect follows the adventure of a blue pixel which chases a red pixel across
-    // your keyboard. Spoiler: the blue pixel never catches the red pixel
-    // LEDChaseEffect,
-
-    // These static effects turn your keyboard's LEDs a variety of colors
-    // solidRed,
-    // solidOrange,
-    // solidYellow,
-    // solidGreen,
-    // solidBlue,
-    // solidIndigo,
-    // solidViolet,
-    rnpGreen,
-    rnpOrange,
-    rnpBlue,
-
-    // The AlphaSquare effect prints each character you type, using your
-    // keyboard's LEDs as a display
-    // AlphaSquareEffect,
-
-    // The stalker effect lights up the keys you've pressed recently
-    // StalkerEffect,
-
-    // The LED Palette Theme plugin provides a shared palette for other plugins,
-    // like Colormap below
-    LEDPaletteTheme,
-
-    // The Colormap effect makes it possible to set up per-layer colormaps
-    ColormapEffect,
-
-    // The numpad plugin is responsible for lighting up the 'numpad' mode
-    // with a custom LED effect
-    // NumPad,
-
-    // The macros plugin adds support for macros
-    Macros,
-
     // The HostPowerManagement plugin allows us to turn LEDs off when then host
     // goes to sleep, and resume them when it wakes up.
     HostPowerManagement,
-
-    // The MagicCombo plugin lets you use key combinations to trigger custom
-    // actions - a bit like Macros, but triggered by pressing multiple keys at the
-    // same time.
-    MagicCombo,
-
-    // The USBQuirks plugin lets you do some things with USB that we aren't
-    // comfortable - or able - to do automatically, but can be useful
-    // nevertheless. Such as toggling the key report protocol between Boot (used
-    // by BIOSes) and Report (NKRO).
-    USBQuirks,
 
     // The Qukeys plugin enables the "Secondary action" functionality in
     // Chrysalis. Keys with secondary actions will have their primary action
@@ -647,28 +416,28 @@ KALEIDOSCOPE_INIT_PLUGINS(
     // enable multiple keybindings per key, based on number of taps
     TapDance,
 
+    // The MagicCombo plugin lets you use key combinations to trigger custom
+    // actions - a bit like Macros, but triggered by pressing multiple keys at the
+    // same time.
+    MagicCombo,
+
+    // The USBQuirks plugin lets you do some things with USB that we aren't
+    // comfortable - or able - to do automatically, but can be useful
+    // nevertheless. Such as toggling the key report protocol between Boot (used
+    // by BIOSes) and Report (NKRO).
+    USBQuirks,
+
     // Turns LEDs off after a configurable amount of idle time.
     IdleLEDs,
     PersistentIdleLEDs,
 
-    // Enables dynamic, Chrysalis-editable macros.
-    DynamicMacros,
+    // We start with the LED effect that turns off all the LEDs.
+    LEDOff,
 
-    // The FirmwareVersion plugin lets Chrysalis query the version of the firmware
-    // programmatically.
-    FirmwareVersion,
+    rnpBlue,
+    rnpOrange,
+    rnpGreen,
 
-    // The LayerNames plugin allows Chrysalis to display - and edit - custom layer
-    // names, to be shown instead of the default indexes.
-    LayerNames,
-
-    // Enables setting, saving (via Chrysalis), and restoring (on boot) the
-    // default LED mode.
-    DefaultLEDModeConfig,
-
-    // Enables the GeminiPR Stenography protocol. Unused by default, but with the
-    // plugin enabled, it becomes configurable - and then usable - via Chrysalis.
-    GeminiPR,
 
     // ActiveModColor lights up the mod keys when they're active
     ActiveModColorEffect);
@@ -686,60 +455,8 @@ void setup() {
     // nice green color.
     BootGreetingEffect.hue = 85;
 
-    // While we hope to improve this in the future, the NumPad plugin
-    // needs to be explicitly told which keymap layer is your numpad layer
-    // NumPad.numPadLayer = NUMPAD;
-
-    // We configure the AlphaSquare effect to use RED letters
-    // AlphaSquare.color = CRGB(255, 0, 0);
-
-    // We set the brightness of the rainbow effects to 150 (on a scale of 0-255)
-    // This draws more than 500mA, but looks much nicer than a dimmer effect
-    // LEDRainbowEffect.brightness(255);
-    // LEDRainbowWaveEffect.brightness(255);
-
     // Set the action key the test mode should listen for to Left Fn
     HardwareTestMode.setActionKey(R3C6);
-
-    // The LED Stalker mode has a few effects. The one we like is called
-    // 'BlazingTrail'. For details on other options, see
-    // https://github.com/keyboardio/Kaleidoscope/blob/master/docs/plugins/LED-Stalker.md
-    // StalkerEffect.variant = STALKER(BlazingTrail);
-
-    // To make the keymap editable without flashing new firmware, we store
-    // additional layers in EEPROM. For now, we reserve space for eight layers. If
-    // one wants to use these layers, just set the default layer to one in EEPROM,
-    // by using the `settings.defaultLayer` Focus command, or by using the
-    // `keymap.onlyCustom` command to use EEPROM layers only.
-    EEPROMKeymap.setup(8);
-
-    // We need to tell the Colormap plugin how many layers we want to have custom
-    // maps for. To make things simple, we set it to eight layers, which is how
-    // many editable layers we have (see above).
-    ColormapEffect.max_layers(8);
-
-    // For Dynamic Macros, we need to reserve storage space for the editable
-    // macros. A kilobyte is a reasonable default.
-    DynamicMacros.reserve_storage(1024);
-
-    // If there's a default layer set in EEPROM, we should set that as the default
-    // here.
-    Layer.move(EEPROMSettings.default_layer());
-
-    // To avoid any surprises, SpaceCadet is turned off by default. However, it
-    // can be permanently enabled via Chrysalis, so we should only disable it if
-    // no configuration exists.
-    SpaceCadetConfig.disableSpaceCadetIfUnconfigured();
-
-    // Editable layer names are stored in EEPROM too, and we reserve 16 bytes per
-    // layer for them. We need one extra byte per layer for bookkeeping, so we
-    // reserve 17 / layer in total.
-    LayerNames.reserve_storage(17 * 8);
-
-    // Unless configured otherwise with Chrysalis, we want to make sure that the
-    // firmware starts with LED effects off. This avoids over-taxing devices that
-    // don't have a lot of power to share with USB devices
-    DefaultLEDModeConfig.activateLEDModeIfUnconfigured(&LEDOff);
 
     ActiveModColorEffect.setHighlightColor(CRGB(0xd0, 0xd0, 0xd0));
     ActiveModColorEffect.setOneShotColor(CRGB(0xd0, 0x69, 0x34));

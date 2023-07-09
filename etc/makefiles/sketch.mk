@@ -56,7 +56,7 @@ possible_fqbn = $(firstword $(possible_fqbns))
 $(info *************************************************************** )
 $(info )
 $(info  Arduino couldn't figure out what kind of device this sketch )
-$(info  is for. Usually, Arduino looks in a file called `sketch.json` )
+$(info  is for. Usually, Arduino looks in a file called `sketch.yaml` )
 $(info  to figure this out. )
 ifneq ($(possible_fqbn),)
 
@@ -71,7 +71,7 @@ $(info  $(ARDUINO_CLI) board attach $(possible_fqbn))
 $(info ) 
 $(info If the build fails or $(possible_fqbn) doesn't)
 $(info look like your keyboard, you may need to manually edit your)
-$(info `sketch.json` file or run )
+$(info `sketch.yaml` file or run )
 $(info )
 $(info  $(ARDUINO_CLI) board attach )
 $(info )
@@ -83,7 +83,7 @@ else
 
 $(info )
 $(info I'm unable to detect your keyboard, you may need to manually )
-$(info edit your `sketch.json` file or run )
+$(info edit your `sketch.yaml` file or run )
 $(info )
 $(info  $(ARDUINO_CLI) board attach )
 $(info )
@@ -164,7 +164,7 @@ endif
 compile: kaleidoscope-hardware-configured
 
 
-	$(QUIET) install -d "${OUTPUT_PATH}"
+	-$(QUIET) install -d "${OUTPUT_PATH}"
 	$(QUIET) $(ARDUINO_CLI) compile --fqbn "${FQBN}" ${ARDUINO_VERBOSE} ${ccache_wrapper_property} ${local_cflags_property} \
 	  ${_arduino_local_libraries_prop} ${_ARDUINO_CLI_COMPILE_CUSTOM_FLAGS} \
 	  --library "${KALEIDOSCOPE_DIR}" \
@@ -191,9 +191,8 @@ endif
 #TODO (arduino team) I'd love to do this with their json output
 #but it's short some of the data we kind of need
 
-flashing_instructions = $(call _arduino_prop,build.flashing_instructions)
 
-_device_port = $(shell $(ARDUINO_CLI) board list --format=text | grep $(FQBN) |cut -d' ' -f 1)
+flashing_instructions = $(call _arduino_prop,build.flashing_instructions)
 
 flash: ${HEX_FILE_PATH}
 ifneq ($(flashing_instructions),)
@@ -205,12 +204,7 @@ endif
 	$(info When you're ready to proceed, press 'Enter'.)
 	$(info )
 	@$(shell read _)
-# If we have a device serial port available, try to trigger a Kaliedoscope reset
-ifneq ($(_device_port),)
-	-$(QUIET) DEVICE=$(_device_port) $(KALEIDOSCOPE_DIR)/bin/focus-send "device.reset"
-	sleep 2
-endif
 	$(QUIET) $(ARDUINO_CLI) upload --fqbn $(FQBN) \
-	$(shell $(ARDUINO_CLI) board list --format=text | grep $(FQBN) |cut -d' ' -f 1 | xargs -n 1 echo "--port" ) \
+	$(shell $(ARDUINO_CLI) board list --format=text | grep $(FQBN) | awk '{ print "--port", $$1; exit }' ) \
 	--input-dir "${OUTPUT_PATH}" \
 	$(ARDUINO_VERBOSE)

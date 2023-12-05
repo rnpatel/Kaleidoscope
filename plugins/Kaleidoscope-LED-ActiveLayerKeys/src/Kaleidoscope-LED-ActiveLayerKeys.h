@@ -1,6 +1,6 @@
 /* -*- mode: c++ -*-
- * Kaleidoscope-Devel-ArduinoTrace -- an ArduinoTrace affordance for kaleidoscope debugging
- * Copyright (C) 2017  Keyboard.io, Inc
+ * Kaleidoscope-LED-ActiveLayerKeys -- Light up the LEDs based on the keys specified in the active layer
+ * Copyright (C) 2018  Keyboard.io, Inc
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -17,14 +17,4 @@
 
 #pragma once
 
-#ifndef ARDUINOTRACE_SERIAL
-#ifdef KALEIDOSCOPE_VIRTUAL_BUILD
-#define ARDUINOTRACE_SERIAL DebugStderr()
-#endif
-#endif
-
-#include <HardwareSerial.h>  // for DebugStderrSerial, DebugStderr
-
-#include "ArduinoTrace.h"  // for ARDUINOTRACE_INIT
-
-ARDUINOTRACE_INIT(9600)
+#include "kaleidoscope/plugin/LED-ActiveLayerKeys.h"  // IWYU pragma: export

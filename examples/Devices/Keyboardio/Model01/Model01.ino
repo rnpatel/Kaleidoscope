@@ -30,6 +30,7 @@
 
 // Support for Sticky Modifiers
 #include "Kaleidoscope-OneShot.h"
+#include "Kaleidoscope-Escape-OneShot.h"
 
 // Support for multiple keys via multitap
 #include "Kaleidoscope-TapDance.h"
@@ -43,6 +44,9 @@
 // Support for controlling the keyboard's LEDs
 #include "Kaleidoscope-LEDControl.h"
 
+// Support for setting and saving the default LED mode
+// #include "Kaleidoscope-DefaultLEDModeConfig.h"
+
 // Support for "Numpad" mode, which is mostly just the Numpad specific LED mode
 // #include "Kaleidoscope-NumPad.h"
 
@@ -55,9 +59,6 @@
 
 // Support for an LED mode that lets one configure per-layer color maps
 #include "Kaleidoscope-Colormap.h"
-
-// Support for Keyboardio's internal keyboard testing mode
-#include "Kaleidoscope-HardwareTestMode.h"
 
 // Support for host power management (suspend & wakeup)
 #include "Kaleidoscope-HostPowerManagement.h"
@@ -325,29 +326,12 @@ static void toggleKeyboardProtocol(uint8_t combo_index) {
     USBQuirks.toggleKeyboardProtocol();
 }
 
-/**
- *  This enters the hardware test mode
- */
-static void enterHardwareTestMode(uint8_t combo_index) {
-  HardwareTestMode.runTests();
-}
-
-
 /** Magic combo list, a list of key combo and action pairs the firmware should
  * recognise.
  */
-USE_MAGIC_COMBOS(
-    {
-        .action = toggleKeyboardProtocol,
-        // Left Fn + Esc + Shift
-        .keys = { R3C6, R2C6, R3C7 }
-    },
-    {
-        .action = enterHardwareTestMode,
-        // Left Fn + Prog + LED
-        .keys = { R3C6, R0C0, R0C6 }
-    }
-);
+USE_MAGIC_COMBOS({.action = toggleKeyboardProtocol,
+                  // Left Fn + Esc + Shift
+                  .keys = {R3C6, R2C6, R3C7}});
 
 // First, tell Kaleidoscope which plugins you want to use.
 // The order can be important. For example, LED effects are

@@ -215,7 +215,7 @@ KEYMAPS(
         Key_Escape,      Key_1, Key_2, Key_3, Key_4, Key_5, KC_MEH,
         Key_Backtick,    Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
         Key_LeftControl, Key_A, Key_S, Key_D, Key_F, Key_G,
-        OSM(LeftShift),  Key_Z, Key_X, Key_C, Key_V, Key_B, TD(TDLBR),
+        Key_LeftShift,   Key_Z, Key_X, Key_C, Key_V, Key_B, TD(TDLBR),
 
         CTL_T(Spacebar), OSM(LeftAlt), OSM(LeftGui), Consumer_AC_NextKeyboardLayoutSelect,
 

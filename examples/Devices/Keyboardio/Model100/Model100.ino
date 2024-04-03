@@ -217,7 +217,7 @@ KEYMAPS(
         Key_LeftControl, Key_A, Key_S, Key_D, Key_F, Key_G,
         Key_LeftShift,   Key_Z, Key_X, Key_C, Key_V, Key_B, TD(TDLBR),
 
-        CTL_T(Spacebar), OSM(LeftAlt), OSM(LeftGui), Consumer_AC_NextKeyboardLayoutSelect,
+        CTL_T(Spacebar), OSM(LeftAlt), OSM(LeftGui), Key_Apple_Globe,
 
         ShiftToLayer(FUNCTION),
 
